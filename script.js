@@ -56,16 +56,16 @@ function newOddPoly(rad,radGive,giveRatio,steps){
   }
 
   newQuad(pAr);
-  
+
 }
 
 function areaTri(p1Ar,p2Ar,p3Ar){
-   triA=dist(p1Ar[0],p1Ar[1],p2Ar[0],p2Ar[1])
-triB=dist(p2Ar[0],p2Ar[1],p3Ar[0],p3Ar[1])
-triC=dist(p3Ar[0],p3Ar[1],p1Ar[0],p1Ar[1])
-triP=(triA+triB+triC)/2
-   
-   return math.sqrt(triP*(triP-triA)*(triP-triB)*(triP-triC))
+  triA=dist(p1Ar[0],p1Ar[1],p2Ar[0],p2Ar[1])
+  triB=dist(p2Ar[0],p2Ar[1],p3Ar[0],p3Ar[1])
+  triC=dist(p3Ar[0],p3Ar[1],p1Ar[0],p1Ar[1])
+  triP=(triA+triB+triC)/2
+
+  return math.sqrt(triP*(triP-triA)*(triP-triB)*(triP-triC))
 }
 
 
@@ -74,7 +74,7 @@ function pointInPoly(pAr,polyPAr){
 
   linesThatIntersect=0
   for(pj=0;pj<polyPAr.length;pj++){
-    
+
     if(pj==polyPAr.length-1){
       pj2=0
     }else{
@@ -136,13 +136,13 @@ function newEnemy(x,y){
    enemies.push(newE)
 }
 function placeEnemies(num,polyAr){
-   
+
    while(enemies.length<num){
-     
+
      x=math.floor(random(0,width))
      y=math.floor(random(0,height))
 
-     
+
      //alert("try "+x+","+y)
 if(circleInPoly([x,y],45,polyAr)){
        enemyWrong=false
@@ -162,7 +162,7 @@ for(en=0;en<enemies.length;en++){
    }
     //end while
    }
-   
+
 
    //place goal
    goalPlaced=false
@@ -222,7 +222,7 @@ function between(a,b,c,buffer){
 
 //point in box defined by top left and bottom right
 function inBox(x,y,x1,y1,x2,y2,buffer){
-  
+
   if(between(x,x1,x2,buffer)&&between(y,y1,y2,buffer)){
   return true
  }else{
@@ -270,7 +270,7 @@ p2yNew=p2y+cos(lineAngle)*cr
 
 function getReboundVel(cxv,cyv,cr,p1x,p1y,p2x,p2y,pointsAreTheNormal){
 
-   
+
   //get line angle
   lineAngle=atan2(p2y-p1y,p2x-p1x);
   //get line normal
@@ -282,11 +282,13 @@ if(pointsAreTheNormal){lineNormal=lineAngle}
 
 
   velAngleNew=lineNormal-(atan2(cxv,cyv)-lineNormal)+PI
+  //round to nearest pi/4
+  velAngleNew=math.floor(velAngleNew/(PI/2))*(PI/2)
   /*if(atan2(cyv,cxv)>lineNormal){
 
     velAngleNew=lineNormal-(atan2(cyv,cxv)-lineNormal)
   }*/
-  
+
 //velAngleNew=lineNormal-(velAngle-lineNormal)
 
 
@@ -302,12 +304,12 @@ y:cos(velAngleNew)*velMagNew}*/
   //alert(surfaceNorm)
   //alert(oldVel)
   //I - 2.0 * dot(N, I) * N.
-  
+
   dotNI=surfaceNorm.dot(oldVel)
   //alert("dni"+dotNI)
-  
+
    dotNI2=surfaceNorm.clone().multiply(new Victor(dotNI*2,dotNI*2))
-  
+
   newVel=oldVel.clone().subtract(dotNI2)
   newVel=newVel.multiply(new Victor(-0.95,-0.95))
   //alert(newVel)
@@ -316,13 +318,19 @@ y:cos(velAngleNew)*velMagNew}*/
 }
 
 biomeNames=[
-"big jagged",
-"small",
+"house",
+"forest",
+"car park",
 "park"
 ]
 
-
+//oddpoly params = rad,radGive,giveRatio,steps
 biomes=[
+function(){
+newOddPoly(250,50,0.22,4);
+enemyNo=math.floor(random(1,3))
+placeEnemies(enemyNo,quads[0].points)
+},
 function(){
 newOddPoly(120,40,0.23,14);
 enemyNo=math.floor(random(3,5))
@@ -342,6 +350,10 @@ placeEnemies(enemyNo,quads[0].points)
 
 biomeLineDraw=[
 function(x1,y1,x2,y2){
+	stroke(140, 90, 30)
+	line(x1,y1,x2,y2)
+},
+function(x1,y1,x2,y2){
 	stroke(75,0,75)
 	line(x1,y1,x2,y2)
 },
@@ -356,14 +368,19 @@ function(x1,y1,x2,y2){
 ]
 biomeCornerDraw=[
 function(x,y){
+	stroke(140, 90, 30)
+	fill(95,60,20)
+	rect(x-5,y-5,10,10)
+},
+function(x,y){
 	stroke(150,0,150)
-	
+
 	fill(50,0,50)
 	ellipse(x,y,cornerRad,cornerRad)
 },
 function(x,y){
 	stroke(150,150,150)
-	
+
 	fill(50,50,50)
 	rect(x-10,y-10,20,20)
 },
@@ -376,23 +393,27 @@ function(x,y){
 
 biomePolyDraw=[
 function(polyAr){
-	
+
 },
 function(polyAr){
-	
+
 },
 function(polyAr){
-	
+
 }
 ]
 
 biomePolyBG=[
+[145,74,50],
 [200,0,0],
 [70,210,70],
 [20,240,60]
 ]
 
 biomeBackgroundDraw=[
+function(){
+	background(70,120,80)
+},
 function(){
 	background(170,0,0)
 },
@@ -407,7 +428,7 @@ function(){
 //newOddPoly(rad,radGive,giveRatio,steps)
 
 function showLevel(biome,seedParam){
-	  background(0);
+	background(0);
   stroke(255);
   timeMult=1;
   hogImg=hogs[currentHog].img
@@ -423,7 +444,7 @@ function showLevel(biome,seedParam){
    pixelVelLimit:80,
    imgRot:0
   };
-  
+
   goal={
     x:0,
     y:0,
@@ -437,12 +458,12 @@ function showLevel(biome,seedParam){
   enemies=[]
   score=0
   touchNo=0
-  
-  
-  
+
+
+
   biomes[biome]();
-  
-  
+
+
 }
 function getHogToUnlock(){
 	  hog=-1
@@ -486,16 +507,16 @@ seed=	currentRun[currentLevel].seed
 showLevel(biome,seed)
 }else{
 	winCurrentRun()
-	
+
 }
 }
 
 function newLevel(){
 	biomeTemp=math.floor(random(biomes.length))
-  
+  //biomeTemp=0
   seedTemp=math.random(10000)
-  
-  
+
+
   return {
   	biome:biomeTemp,
   	seed:seedTemp,
@@ -526,14 +547,14 @@ function setup() {
   h=window.innerHeight;
   createCanvas(w,h)
   noSmooth()
-  
+
   imgs={
   	   enemies:[
   	   loadImage("img/enemy0.png"),
   	   loadImage("img/enemy1.png")
   	   ]
   }
-  
+
 hogs=[
 {
 	name:"hog",
@@ -556,7 +577,7 @@ hogs=[
 	name:"junk hog",
 	ballImg:loadImage("img/hog5.png"),
 	img:loadImage("img/hog6.png"),
-	r:25,
+	r:35,
 	speed:0.1,
 	friction:0.9999
 }
@@ -568,8 +589,8 @@ hogs=[
   //if no save
   unlockedHogs=[0]
   runs=[]
-  
-  
+
+
   currentHog=0
   paused=false
   goToMenu=false
@@ -579,89 +600,119 @@ hogs=[
   	show:false,
   	onClick:function(){
   		popUp.show=false
-		paused=false
+		  paused=false
   		goToMenu=true
   	},
   	draw:function(){
-		fill(150,150,150)
-  		rect(10,10,width-20,height-20)
-		fill(255,255,255)
-		text(popUp.text,10,10)
-		image(hogballImg,width/2,height/2,width/3,width/3)
-		
+  		fill(150,150,150)
+    	rect(10,10,width-20,height-20)
+  		fill(255,255,255)
+  		text(popUp.text,10,10)
+  		image(popUp.img,width/2,height/2,width/3,width/3)
   	}
   }
-  
-  //nextLevel()
-  
 
-  
+  //nextLevel()
+
+
+
  //clear()
  //loop()
 }
 
 
-
-
-document.addEventListener("touchstart",function(e){
-  e.preventDefault();
- if(gamestate=="game"){
- 	 touchStartX=e.touches[0].clientX;
-touchStartY=e.touches[0].clientY;
-touching=true;
-timeMult=0.2;
-}else{
-	touchStartX=e.touches[0].clientX;
- touchStartY=e.touches[0].clientY;
- touching=true;
- //alert(touchStartX+","+touchStartY)
+//https://stackoverflow.com/questions/4817029/whats-the-best-way-to-detect-a-touch-screen-device-using-javascript/4819886#4819886
+function is_touch_device() {
+var prefixes = ' -webkit- -moz- -o- -ms- '.split(' ');
+var mq = function(query) {
+  return window.matchMedia(query).matches;
 }
 
+if (('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch) {
+  return true;
+}
 
-});
+// include the 'heartz' as a way to have a non matching MQ to help terminate the join
+// https://git.io/vznFH
+var query = ['(', prefixes.join('touch-enabled),('), 'heartz', ')'].join('');
+return mq(query);
+}
 
-document.addEventListener("touchend",function(e){
+function fingerDown(x,y){
+  if(gamestate=="game"){
+    touchStartX=x;
+    touchStartY=y;
+    touching=true;
+    timeMult=0.2;
+  }else{
+    touchStartX=x;
+    touchStartY=y;
+    touching=true;
+    //alert(touchStartX+","+touchStartY)
+  }
+}
+
+function fingerUp(x,y){
   touching=false;
   if(gamestate=="game"){
-  	if(popUp.show){
-  		popUp.show=false
-  		popUp.onClick()
-  	}
-  	else{
-  touchNo++;
-  timeMult=1;
-  touchXLen=mouseX-touchStartX;
-  touchYLen=mouseY-touchStartY;
-  touchAngle=atan2(touchXLen,touchYLen)+PI;
-  touchHyp=math.sqrt((touchXLen*touchXLen)+(touchYLen*touchYLen));
+    if(popUp.show){
+      popUp.show=false
+      popUp.onClick()
+    }
+    else{
+      touchNo++;
+      timeMult=1;
+      touchXLen=x-touchStartX;
+      touchYLen=y-touchStartY;
+      touchAngle=atan2(touchXLen,touchYLen)+PI;
+      touchHyp=math.sqrt((touchXLen*touchXLen)+(touchYLen*touchYLen));
 
-touchHyp=clamp(touchHyp,-ball.pixelVelLimit,ball.pixelVelLimit);
-  
-ball.vx=(ball.vx+(sin(touchAngle)*touchHyp*ball.speed));
-ball.vy=(ball.vy+(cos(touchAngle)*touchHyp*ball.speed));
-//console.log(touchAngle)
+      touchHyp=clamp(touchHyp,-ball.pixelVelLimit,ball.pixelVelLimit);
+
+      ball.vx=(ball.vx+(sin(touchAngle)*touchHyp*ball.speed));
+      ball.vy=(ball.vy+(cos(touchAngle)*touchHyp*ball.speed));
+      //console.log(touchAngle)
+    }
+  }
 }
+
+if(is_touch_device()){
+
+  //phone/tablet listeners
+  document.addEventListener("touchstart",function(e){
+    e.preventDefault();
+   fingerDown(e.touches[0].clientX,e.touches[0].clientY);
+  });
+
+  document.addEventListener("touchend",function(e){
+    fingerUp(mouseX,mouseY);
+  });
+
+}else{
+
+  //desktop listeners
+  document.addEventListener("mousedown",function(e){
+    e.preventDefault();
+    fingerDown(e.clientX,e.clientY);
+  });
+
+  document.addEventListener("mouseup",function(e){
+    fingerUp(mouseX,mouseY);
+  });
 }
-
-});
-
 
 function draw() {
 	if(gamestate=="game"){
-  /*if(ball.x<0){ball.x=0}
-  else if(ball.x>width){ball.x=width}
 
- if(ball.y<0){ball.y=0}
- else if(ball.y>height){ball.y=height}*/
  biomeBackgroundDraw[biome]()
- 
-  
+
+
 
 
   translate(-ball.x+width/2,-ball.y+height/2)
-  
-  
-  
+
+
+
 
   polyBG=biomePolyBG[biome];
 
@@ -675,230 +726,230 @@ function draw() {
   noFill()
   var scribble = new Scribble();
   //background(0);
-  
+
   ball.colliding=false
   ball.nearestLineCoords=[]
   ball.nearestIntersect=[]
 
-for(i=0;i<quads.length;i++){
-//if(false){
-quad=quads[i]
-p=quad.points
-for(j=0;j<p.length;j++){
-p1=p[j]
-if(j<p.length-1){
- p2=p[j+1]
-}else{
- p2=p[0]
-}
+  for(i=0;i<quads.length;i++){
+  //if(false){
+  quad=quads[i]
+  p=quad.points
+  for(j=0;j<p.length;j++){
+  p1=p[j]
+  if(j<p.length-1){
+   p2=p[j+1]
+  }else{
+   p2=p[0]
+  }
 
-//get ball vel line (timeMult included)
-testRayAngle=atan2(ball.vx,ball.vy);
-testVelHyp=math.sqrt((ball.vx*ball.vx)+(ball.vy*ball.vy))*timeMult
-testRayX=sin(testRayAngle)*testVelHyp
-testRayY=cos(testRayAngle)*testVelHyp
-ballIntCoords=math.intersect([p1[0],p1[1]],[p2[0],p2[1]],[ball.x,ball.y],[testRayX,testRayY])
-//console.log("ballIntCoords",ballIntCoords);
-  ballIntDist=dist(ballIntCoords[0],ballIntCoords[1],ball.x,ball.y)
-//if intersect with current line
-//if coords dist from ball less than velhyp and (nearer to ball than current coords or no coords set)
-if(ballIntCoords!=null && ballIntDist<testVelHyp && (ball.nearestLineCoords.length==0|| dist(ball.x,ball.y,ball.nearestIntersect[0],ball.nearestIntersect[1])>ballIntDist) && inBox(ballIntCoords[0],ballIntCoords[1],p1[0],p1[1],p2[0],p2[1],5)){
-//set ball nearestLineCoords to new coords
-  ball.nearestIntersect=[ballIntCoords[0],ballIntCoords[1]]
-  ball.nearestLineCoords=[[p1[0],p1[1]],[p2[0],p2[1]]]
-
-
-}
+  //get ball vel line (timeMult included)
+  testRayAngle=atan2(ball.vx,ball.vy);
+  testVelHyp=math.sqrt((ball.vx*ball.vx)+(ball.vy*ball.vy))*timeMult
+  testRayX=sin(testRayAngle)*testVelHyp
+  testRayY=cos(testRayAngle)*testVelHyp
+  ballIntCoords=math.intersect([p1[0],p1[1]],[p2[0],p2[1]],[ball.x,ball.y],[testRayX,testRayY])
+  //console.log("ballIntCoords",ballIntCoords);
+    ballIntDist=dist(ballIntCoords[0],ballIntCoords[1],ball.x,ball.y)
+  //if intersect with current line
+  //if coords dist from ball less than velhyp and (nearer to ball than current coords or no coords set)
+  if(ballIntCoords!=null && ballIntDist<testVelHyp && (ball.nearestLineCoords.length==0|| dist(ball.x,ball.y,ball.nearestIntersect[0],ball.nearestIntersect[1])>ballIntDist) && inBox(ballIntCoords[0],ballIntCoords[1],p1[0],p1[1],p2[0],p2[1],5)){
+  //set ball nearestLineCoords to new coords
+    ball.nearestIntersect=[ballIntCoords[0],ballIntCoords[1]]
+    ball.nearestLineCoords=[[p1[0],p1[1]],[p2[0],p2[1]]]
 
 
-//if ball stuck
-if(circleLineColl(ball.x,ball.y,ball.r/5,p1[0],p1[1],p2[0],p2[1])){
-  //ball.x=ball.x+sin(lineNormal)*ball.r/2
-//ball.y=ball.y+cos(lineNormal)*ball.r/2
-newVel=getReboundVel(ball.vx,ball.vy,ball.r,p1[0],p1[1],p2[0],p2[1],false)
-ball.vx=newVel.x;
-ball.vy=newVel.y;
+  }
 
-}
-else if(circleLineColl(ball.x,ball.y,ball.r,p1[0],p1[1],p2[0],p2[1])){
-  ball.colliding=true
-  stroke(255,0,0);
+
+  //if ball stuck
+  if(circleLineColl(ball.x,ball.y,ball.r/5,p1[0],p1[1],p2[0],p2[1])){
+    //ball.x=ball.x+sin(lineNormal)*ball.r/2
+  //ball.y=ball.y+cos(lineNormal)*ball.r/2
   newVel=getReboundVel(ball.vx,ball.vy,ball.r,p1[0],p1[1],p2[0],p2[1],false)
-ball.vx=newVel.x;
-ball.vy=newVel.y;
+  ball.vx=newVel.x;
+  ball.vy=newVel.y;
 
-//break;
+  }
+  else if(circleLineColl(ball.x,ball.y,ball.r,p1[0],p1[1],p2[0],p2[1])){
+    ball.colliding=true
+    stroke(255,0,0);
+    newVel=getReboundVel(ball.vx,ball.vy,ball.r,p1[0],p1[1],p2[0],p2[1],false)
+  ball.vx=newVel.x;
+  ball.vy=newVel.y;
 
-}else{stroke(255);}
-//scribble.scribbleLine(p1[0],p1[1],p2[0],p2[1]);
-strokeWeight(8)
-biomeLineDraw[biome](p1[0],p1[1],p2[0],p2[1]);
-strokeWeight(1)
-//stroke(255);
-//scribble.scribbleLine(ball.x,ball.y,cRayEndX,cRayEndY);
-midLineX=p1[0]+(p2[0]-p1[0])/2
-midLineY=p1[1]+(p2[1]-p1[1])/2
-//scribble.scribbleLine(midLineX,midLineY,midLineX+sin(lineNormal)*10,midLineY+cos(lineNormal)*10);
-//text(lineAngle.toFixed(2)+"("+lineNormal.toFixed(2)+")",midLineX,midLineY);
-//text(j+"-"+(j+1),midLineX,midLineY);
-//text(lineNormal.toFixed(2)+"",midLineX,midLineY);
+  //break;
 
-
-//corner coll
-if(cornerColOn){
-if(circleColl(ball.x,ball.y,ball.r/2,p1[0],p1[1],cornerRad/2)){
-  stroke(255,0,0);
-   //newVel=getReboundVel(ball.vx,ball.vy,ball.r,p1[0],p1[1],p2[0],p2[1],false)
-   newVelMag=math.sqrt((ball.vx*ball.vx)+(ball.vy*ball.vy))
-   newVelAngle=atan2((width/2)-p1[0],(height/2)-p1[1])
-   newVel={x:sin(newVelAngle)*newVelMag,y:cos(newVelAngle)*newVelMag}
-ball.vx=newVel.x;
-ball.vy=newVel.y;
-}else{stroke(255);}
-//scribble.scribbleEllipse(p1[0],p1[1],cornerRad,cornerRad);
-strokeWeight(4)
-biomeCornerDraw[biome](p1[0],p1[1]);
-noFill();
-strokeWeight(1)
-}
+  }else{stroke(255);}
+  //scribble.scribbleLine(p1[0],p1[1],p2[0],p2[1]);
+  strokeWeight(8)
+  biomeLineDraw[biome](p1[0],p1[1],p2[0],p2[1]);
+  strokeWeight(1)
+  //stroke(255);
+  //scribble.scribbleLine(ball.x,ball.y,cRayEndX,cRayEndY);
+  midLineX=p1[0]+(p2[0]-p1[0])/2
+  midLineY=p1[1]+(p2[1]-p1[1])/2
+  //scribble.scribbleLine(midLineX,midLineY,midLineX+sin(lineNormal)*10,midLineY+cos(lineNormal)*10);
+  //text(lineAngle.toFixed(2)+"("+lineNormal.toFixed(2)+")",midLineX,midLineY);
+  //text(j+"-"+(j+1),midLineX,midLineY);
+  //text(lineNormal.toFixed(2)+"",midLineX,midLineY);
 
 
-//end for point
-}
-
-//end for quad
-}
-
-  
-
-
-//enemies
-nearEnemy=false
-for(el=0;el<enemies.length;el++){
-
-  enemy=enemies[el]
-  if(enemy.hits>0){
-if(circleColl(ball.x,ball.y,ball.r/2,enemy.x,enemy.y,enemy.r/2)){
-   if(enemy.isHit==false){
-     enemies[el].hits--;
-     score+=(enemy.hitScore*1/touchNo)*0.02*math.sqrt((ball.vx*ball.vx)+(ball.vy*ball.vy))
-
-     enemies[el].isHit=true;
-     checkGoal()
+  //corner coll
+  if(cornerColOn){
+  if(circleColl(ball.x,ball.y,ball.r/2,p1[0],p1[1],cornerRad/2)){
+    stroke(255,0,0);
+     //newVel=getReboundVel(ball.vx,ball.vy,ball.r,p1[0],p1[1],p2[0],p2[1],false)
+     newVelMag=math.sqrt((ball.vx*ball.vx)+(ball.vy*ball.vy))
+     newVelAngle=atan2((width/2)-p1[0],(height/2)-p1[1])
+     newVel={x:sin(newVelAngle)*newVelMag,y:cos(newVelAngle)*newVelMag}
+  ball.vx=newVel.x;
+  ball.vy=newVel.y;
+  }else{stroke(255);}
+  //scribble.scribbleEllipse(p1[0],p1[1],cornerRad,cornerRad);
+  strokeWeight(4)
+  biomeCornerDraw[biome](p1[0],p1[1]);
+  noFill();
+  strokeWeight(1)
+  }
 
 
-     enemyBallX=enemy.x-ball.x
-     enemyBallY=enemy.y-ball.y
-     /*
-enemyBallAngle=atan2(enemyBallX,enemyBallY)+PI
+  //end for point
+  }
 
-//enemyBallAngle=enemyBallAngle-(atan2(ball.vx,ball.vy)-enemyBallAngle)
-
-//enemyBallAngle=enemyBallAngle+atan2(ball.vx,ball.vy)
-    enemyBallMag=math.sqrt((enemyBallX*enemyBallX)+(enemyBallY*enemyBallY))*0.6
-     ball.vx=sin(enemyBallAngle)*enemyBallMag
-     ball.vy=cos(enemyBallAngle)*enemyBallMag
-*/
-//newVel=getReboundVel(ball.vx,ball.vy,ball.r,ball.x,ball.y,enemy.x,enemy.y,true)
-enemyReboundPX=[ball.x,enemy.x]
-/*if(ball.x>enemy.x){
-	enemyReboundPX=[enemy.x,ball.x]
-}*/
-enemyReboundPY=[ball.y,enemy.y]
-/*if(ball.y<enemy.y){
-	enemyReboundPY=[enemy.y,ball.y]
-}*/
-newVel=getReboundVel(ball.vx,ball.vy,ball.r/2,enemyReboundPX[0],enemyReboundPY[0],enemyReboundPX[1],enemyReboundPY[1],false)
-ball.vx=-newVel.x
-ball.vy=-newVel.y
-   }
-}else if(circleColl(ball.x,ball.y,ball.r/2,enemy.x,enemy.y,enemy.almostR/2)){
-
-  nearEnemy=true;
-  if(enemy.isHit){enemy.isHit=false}
-
-}
-
-
-}
-
-}
+  //end for quad
+  }
 
 
 
-if(nearEnemy){ timeMult=0.3}
-else if(!touching){timeMult=1}
 
-//draw ball
-//scribble.scribbleEllipse(ball.x,ball.y,ball.r,ball.r);
-imageMode(CENTER)
-ballSpeed=math.sqrt((ball.vx*ball.vx)+(ball.vy*ball.vy))
-if(ballSpeed>0){
-	push()
-	translate(ball.x,ball.y)
-	ball.imgRot+=0.05*ballSpeed
-rotate(ball.imgRot)
-image(hogballImg,0,0,ball.r,ball.r)
-pop()
+  //enemies
+  nearEnemy=false
+  for(el=0;el<enemies.length;el++){
 
-}else{
-	image(hogImg,ball.x,ball.y,ball.r,ball.r)
-}
+    enemy=enemies[el]
+    if(enemy.hits>0){
+  if(circleColl(ball.x,ball.y,ball.r/2,enemy.x,enemy.y,enemy.r/2)){
+     if(enemy.isHit==false){
+       enemies[el].hits--;
+       score+=(enemy.hitScore*1/touchNo)*0.02*math.sqrt((ball.vx*ball.vx)+(ball.vy*ball.vy))
 
-ballVelAngle=atan2(ball.vx,ball.vy);
+       enemies[el].isHit=true;
+       checkGoal()
 
-scribble.scribbleLine(ball.x,ball.y,ball.x+(sin(ballVelAngle)*10),ball.y+(cos(ballVelAngle)*10))
 
-  //if ball not colliding
-  if(!ball.colliding && ball.nearestLineCoords.length>0){
-   console.log(ball);
-    //set ball coords to intersect coords (-small buffer?)
-      ballXDiff=ball.nearestIntersect[0]-ball.x
-      ballYDiff=ball.nearestIntersect[1]-ball.y
+       enemyBallX=enemy.x-ball.x
+       enemyBallY=enemy.y-ball.y
+       /*
+  enemyBallAngle=atan2(enemyBallX,enemyBallY)+PI
 
-ballDiffAngle=atan2(ballXDiff,ballYDiff)
+  //enemyBallAngle=enemyBallAngle-(atan2(ball.vx,ball.vy)-enemyBallAngle)
+
+  //enemyBallAngle=enemyBallAngle+atan2(ball.vx,ball.vy)
+      enemyBallMag=math.sqrt((enemyBallX*enemyBallX)+(enemyBallY*enemyBallY))*0.6
+       ball.vx=sin(enemyBallAngle)*enemyBallMag
+       ball.vy=cos(enemyBallAngle)*enemyBallMag
+  */
+  //newVel=getReboundVel(ball.vx,ball.vy,ball.r,ball.x,ball.y,enemy.x,enemy.y,true)
+  enemyReboundPX=[ball.x,enemy.x]
+  /*if(ball.x>enemy.x){
+  	enemyReboundPX=[enemy.x,ball.x]
+  }*/
+  enemyReboundPY=[ball.y,enemy.y]
+  /*if(ball.y<enemy.y){
+  	enemyReboundPY=[enemy.y,ball.y]
+  }*/
+  newVel=getReboundVel(ball.vx,ball.vy,ball.r/2,enemyReboundPX[0],enemyReboundPY[0],enemyReboundPX[1],enemyReboundPY[1],false)
+  ball.vx=-newVel.x
+  ball.vy=-newVel.y
+     }
+  }else if(circleColl(ball.x,ball.y,ball.r/2,enemy.x,enemy.y,enemy.almostR/2)){
+
+    nearEnemy=true;
+    if(enemy.isHit){enemy.isHit=false}
+
+  }
+
+
+  }
+
+  }
+
+
+
+  if(nearEnemy){ timeMult=0.3}
+  else if(!touching){timeMult=1}
+
+  //draw ball
+  //scribble.scribbleEllipse(ball.x,ball.y,ball.r,ball.r);
+  imageMode(CENTER)
+  ballSpeed=math.sqrt((ball.vx*ball.vx)+(ball.vy*ball.vy))
+  if(ballSpeed>0){
+  	push()
+  	translate(ball.x,ball.y)
+  	ball.imgRot+=0.05*ballSpeed
+  rotate(ball.imgRot)
+  image(hogballImg,0,0,ball.r,ball.r)
+  pop()
+
+  }else{
+  	image(hogImg,ball.x,ball.y,ball.r,ball.r)
+  }
+
+  ballVelAngle=atan2(ball.vx,ball.vy);
+
+  scribble.scribbleLine(ball.x,ball.y,ball.x+(sin(ballVelAngle)*10),ball.y+(cos(ballVelAngle)*10))
+
+    //if ball not colliding
+    if(!ball.colliding && ball.nearestLineCoords.length>0){
+     console.log(ball);
+      //set ball coords to intersect coords (-small buffer?)
+        ballXDiff=ball.nearestIntersect[0]-ball.x
+        ballYDiff=ball.nearestIntersect[1]-ball.y
+
+  ballDiffAngle=atan2(ballXDiff,ballYDiff)
 
   if(!paused){
-ball.x=ball.nearestIntersect[0]-sin(ballDiffAngle)*ball.r*0.6
-  
-ball.y=ball.nearestIntersect[1]-cos(ballDiffAngle)*ball.r*0.6
+    ball.x=ball.nearestIntersect[0]-sin(ballDiffAngle)*ball.r*0.6
+
+    ball.y=ball.nearestIntersect[1]-cos(ballDiffAngle)*ball.r*0.6
   }
-    //get rebound vel
-    newVel=getReboundVel(ball.vx,ball.vy,ball.r,ball.nearestLineCoords[0][0],ball.nearestLineCoords[0][1],ball.nearestLineCoords[1][0],ball.nearestLineCoords[1][1],false)
-//set ball vx/vy
-//console.log(ball)
-//newVel={x:2,y:2}
-ball.vx=-newVel.x;
-ball.vy=-newVel.y;
-//console.log(ball.nearestLineCoords)
+  //get rebound vel
+  newVel=getReboundVel(ball.vx,ball.vy,ball.r,ball.nearestLineCoords[0][0],ball.nearestLineCoords[0][1],ball.nearestLineCoords[1][0],ball.nearestLineCoords[1][1],false)
+  //set ball vx/vy
+  //console.log(ball)
+  //newVel={x:2,y:2}
+  ball.vx=-newVel.x;
+  ball.vy=-newVel.y;
+  //console.log(ball.nearestLineCoords)
 
-ballVelAngle=atan2(ball.vx,ball.vy);
-stroke(0,255,0);
-scribble.scribbleLine(ball.x,ball.y,ball.x+(sin(ballVelAngle)*10),ball.y+(cos(ballVelAngle)*10))
-console.log(ball);
-console.log(quads);
-scribble.scribbleLine(ball.nearestLineCoords[0][0],ball.nearestLineCoords[0][1],ball.nearestLineCoords[1][0],ball.nearestLineCoords[1][1])
-scribble.scribbleEllipse(ball.nearestIntersect[0],ball.nearestIntersect[1],10,10);
-stroke(255,255,0);
-scribble.scribbleLine(0,0,testRayX,testRayY);
+  ballVelAngle=atan2(ball.vx,ball.vy);
+  stroke(0,255,0);
+  scribble.scribbleLine(ball.x,ball.y,ball.x+(sin(ballVelAngle)*10),ball.y+(cos(ballVelAngle)*10))
+  console.log(ball);
+  console.log(quads);
+  scribble.scribbleLine(ball.nearestLineCoords[0][0],ball.nearestLineCoords[0][1],ball.nearestLineCoords[1][0],ball.nearestLineCoords[1][1])
+  scribble.scribbleEllipse(ball.nearestIntersect[0],ball.nearestIntersect[1],10,10);
+  stroke(255,255,0);
+  scribble.scribbleLine(0,0,testRayX,testRayY);
 
 
-//noLoop();
-    
- 
-   }
+  //noLoop();
+
+
+     }
   ball.vx=ball.vx*ball.friction
-  if(abs(ball.vx)<0.25){ball.vx=0;}
-  
+  if(abs(ball.vx)<0.25*timeMult){ball.vx=0;}
+
   ball.vy=ball.vy*ball.friction
-  if(abs(ball.vy)<0.25){ball.vy=0;}
-  
+  if(abs(ball.vy)<0.25*timeMult){ball.vy=0;}
+
   //check if new point in poly
-  
+
   ballNewX=ball.x+ball.vx*timeMult
   ballNewY=ball.y+ball.vy*timeMult
   if(pointInPoly([ballNewX,ballNewY],quads[0].points)){
-	  
+
 	  if(!paused){
 			ball.x=ballNewX
 			ball.y=ballNewY
@@ -927,7 +978,7 @@ stroke(255);
     touchLenY=mouseY-touchStartY
     touchAngle=atan2(touchLenX,touchLenY)+PI
     touchHyp=clamp(math.sqrt((touchLenX*touchLenX)+(touchLenY*touchLenY)),0,ball.pixelVelLimit)
-    
+
     touchLenX=sin(touchAngle)*touchHyp
    touchLenY=cos(touchAngle)*touchHyp
 
@@ -947,7 +998,7 @@ text(touchAngle.toFixed(2)+"",ball.x-10,ball.y)
   //line(polyLineTest[0][0],spolyLineTest[0][1],polyLineTest[1]
   if(goToMenu){
 	gamestate="menu"
-	goToMenu=false	
+	goToMenu=false
 }else if(!paused && circleColl(ball.x,ball.y,ball.r/2,goal.x,goal.y,goal.r/2)&&goal.active){
   nextLevel()
 }
@@ -970,25 +1021,24 @@ if(popUp.show){popUp.draw()}
 	//alert(unlockedHogs)
 	for(var i=0;i<unlockedHogs.length;i++){
 		el=unlockedHogs[i]
-		
+
 		rect(curX-50,-50+height/2,100, 100)
 		image(hogs[el].img,curX,height/2,30,30)
 		if(touching && inBox(touchStartX,touchStartY,curX,height/2,curX+10,10+height/2,50)){
 			currentHog=el
 			touching=false
 			currentRun=newRun()
-  currentLevel=0
-  currentLevel=9
-  biome=currentRun[currentLevel].biome
-seed=	currentRun[currentLevel].seed
+      currentLevel=0
+      //currentLevel=9
+      biome=currentRun[currentLevel].biome
+      seed=	currentRun[currentLevel].seed
 
-showLevel(biome,seed)
-			gamestate="game"
-			
-		}
-		
-		
-		
+      showLevel(biome,seed)
+    	gamestate="game"
+    }
+
+
+
 		 curX=curX+(width/bufferNo)+30
 		 }
 
