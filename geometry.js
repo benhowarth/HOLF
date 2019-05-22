@@ -10,11 +10,15 @@ class Ray{
     dir.normalize();
   }
   cast(wall){
+    push()
+    stroke(255,0,0)
     let pointRes=null;
-    for(i=0;i<2;i++){
+    let posTemp=createVector(this.pos.x,this.pos.y)
+    let dirNormal=atan2(this.dir.y,this.dir.x)+PI/2;
 
-      let posTemp=createVector(this.pos.x,this.pos.y)
-      let dirNormal=atan2(this.dir.x,this.dir.y);
+    //line(this.pos.x+cos(dirNormal)*this.thickness/2,this.pos.y+sin(dirNormal)*this.thickness/2,this.pos.x-cos(dirNormal)*this.thickness/2,this.pos.y-sin(dirNormal)*this.thickness/2)
+
+    for(i=0;i<2;i++){
       if(i==0){
         posTemp.x+=cos(dirNormal)*this.thickness/2;
         posTemp.y+=sin(dirNormal)*this.thickness/2;
@@ -22,6 +26,7 @@ class Ray{
         posTemp.x-=cos(dirNormal)*this.thickness/2;
         posTemp.y-=sin(dirNormal)*this.thickness/2;
       }
+      //line(posTemp.x,posTemp.y,posTemp.x+this.dir.x*100,posTemp.y+this.dir.y*100);
 
       const x1=wall.a.x;
       const y1=wall.a.y;
@@ -48,6 +53,8 @@ class Ray{
 
 
     }
+
+    pop();
     return pointRes;
   }
 }
@@ -70,7 +77,7 @@ function getReboundVel(cxv,cyv,cr,p1x,p1y,p2x,p2y,pointsAreTheNormal){
   lineAngle=atan2(p2y-p1y,p2x-p1x);
   //get line normal
   lineNormal=getNormal(p2y-p1y,p2x-p1x)
-if(pointsAreTheNormal){lineNormal=lineAngle}
+  if(pointsAreTheNormal){lineNormal=lineAngle}
 
   velAngle=atan2(cxv,cyv)
   velMag=math.sqrt((cxv*cxv)+(cyv*cyv))
@@ -85,7 +92,7 @@ if(pointsAreTheNormal){lineNormal=lineAngle}
   if(velMagNew<4 && !pointsAreTheNormal){velAngleNew=lineNormal}
 
 
-  surfaceNorm=(new Victor(p2x-p1x,p2y-p1y)).norm()
+  surfaceNorm=(new Victor(p1x-p2x,p1y-p2y)).norm()
   oldVel=new Victor(cxv,cyv)
 
   //2.0 * dot(N, I) * N - I
@@ -102,27 +109,26 @@ if(pointsAreTheNormal){lineNormal=lineAngle}
   return newVel
 }
 
-function getReflection(startX,startY,endX,endY,p1x,p1y,p2x,p2y){
-  lineIntCoords=math.intersect([p1x,p1y],[p2x,p2y],[startX,startY],[endX,endY])
+function getReflection(startX,startY,endX,endY,p1x,p1y,p2x,p2y,thickness=0){
+	lineIntCoords=math.intersect([p1x,p1y],[p2x,p2y],[startX,startY],[endX,endY])
   lineLenX=endX-startX
   lineLenY=endY-startY
   lineHyp=math.sqrt((lineLenX*lineLenX)+(lineLenY*lineLenY))
-  lineAngle=atan2(lineLenX,lineLenY)+PI
+  lineAngle=atan2(lineLenY,lineLenX)
+  reflectRay=new Ray(startX,startY,lineAngle,lineHyp,thickness)
   //console.log("ballIntCoords",ballIntCoords);
-  if(lineIntCoords!=null){
-    lineIntDist=dist(lineIntCoords[0],lineIntCoords[1],startX,startY)
-    lineIntDistX=lineIntCoords[0]-startX
-    lineIntDistY=lineIntCoords[1]-startY
-    lineIntAngle=atan2(lineIntCoords[0]-startX,lineIntCoords[1]-startY)+PI
-  }
-  //if intersect with current line
-  //if coords dist from ball less than velhyp and (nearer to ball than current coords or no coords set) and angles are within PI of eachother (so no reflections drawn on a line that touchline is pointing away from)
-  if(lineIntCoords!=null && lineIntDist<lineHyp && inBox(lineIntCoords[0],lineIntCoords[1],p1x,p1y,p2x,p2y,5) && (lineAngle>lineIntAngle-PI/2 && lineAngle<lineIntAngle+PI/2)){
-    //get reflected vector
+  reflectHit=reflectRay.cast(new Wall(p1x,p1y,p2x,p2y))
+  if(reflectHit){
+    lineIntDist=dist(reflectHit.x,reflectHit.y,startX,startY)
+    lineIntDistX=reflectHit.x-startX
+    lineIntDistY=reflectHit.y-startY
+    lineIntAngle=atan2(lineIntDistX,lineIntDistY)-PI
+
     lineNewVel=getReboundVel(endX-startX,endY-startY,lineHyp,p1[0],p1[1],p2[0],p2[1],false)
     lineNewVel.x=lineNewVel.x*(1-(lineIntDist/lineHyp))
     lineNewVel.y=lineNewVel.y*(1-(lineIntDist/lineHyp))
-    return {startX:lineIntCoords[0]+(sin(lineIntAngle)*2),startY:lineIntCoords[1]+(cos(lineIntAngle)*2),endX:lineIntCoords[0]+lineNewVel.x,endY:lineIntCoords[1]+lineNewVel.y};
+
+    return {startX:reflectHit.x+(sin(lineIntAngle)*2),startY:reflectHit.y+(cos(lineIntAngle)*2),endX:reflectHit.x+lineNewVel.x,endY:reflectHit.y+lineNewVel.y};
   }else{
     return null
   }

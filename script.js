@@ -15,7 +15,7 @@
 //add imgs for edges/pretty up edges
 
 //alert(2)
-gamestate="menu"
+changeGamestate("menu")
 //alert(1)
 cornerRad=3
 cornerColOn=false
@@ -136,6 +136,7 @@ function newEnemy(x,y){
      y:y,
      r:35,
      hits:3,
+     totalHits:3,
      isHit:false,
      hitScore:100,
      almostR:55,
@@ -189,12 +190,18 @@ function drawEnemies(){
   for(en=0;en<enemies.length;en++){
      enemy=enemies[en]
      if(enemy.hits>0){
-       //ellipse(enemy.x,enemy.y,enemy.r,enemy.r)
-       //image(imgs.enemies[biome],enemy.x,enemy.y,enemy.r,enemy.r)
+      //ellipse(enemy.x,enemy.y,enemy.r,enemy.r)
+      //image(imgs.enemies[biome],enemy.x,enemy.y,enemy.r,enemy.r)
       image(imgs.enemies[0],enemy.x,enemy.y,enemy.r,enemy.r)
-     //ellipse(enemy.x,enemy.y,enemy.almostR,enemy.almostR)
-
-text(enemy.hits+"",enemy.x,enemy.y)
+      //ellipse(enemy.x,enemy.y,enemy.almostR,enemy.almostR)
+      textSize(15);
+			stroke(255,255,255,150+(150)*(enemy.hits/enemy.totalHits));
+			if(enemy.isHit){
+        fill(255,255,255,255);
+      }else{
+        fill(255,0,0,150+(150)*(enemy.hits/enemy.totalHits));
+      }
+      text(enemy.hits+"",enemy.x-5,enemy.y+enemy.r/4)
 
     }
   }
@@ -229,7 +236,7 @@ function between(a,b,c,buffer){
 
 
 //point in box defined by top left and bottom right
-function inBox(x,y,x1,y1,x2,y2,buffer){
+function inBox(x,y,x1,y1,x2,y2,buffer=0){
 
   if(between(x,x1,x2,buffer)&&between(y,y1,y2,buffer)){
   return true
@@ -283,139 +290,6 @@ p2yNew=p2y+cos(lineAngle)*cr
 
 
 
-biomeNames=[
-"test",
-"house",
-"forest",
-"car park",
-"park"
-]
-
-//oddpoly params = rad,radGive,giveRatio,steps
-biomes=[
-function(){
-newOddPoly(250,0,0,8);
-enemyNo=math.floor(random(1,3))
-placeEnemies(enemyNo,quads[0].points)
-},
-function(){
-newOddPoly(250,50,0.22,4);
-enemyNo=math.floor(random(1,3))
-placeEnemies(enemyNo,quads[0].points)
-},
-function(){
-newOddPoly(120,40,0.23,14);
-enemyNo=math.floor(random(3,5))
-placeEnemies(enemyNo,quads[0].points)
-},
-function(){
-newOddPoly(120,20,0.23,6);
-enemyNo=math.floor(random(2,3))
-placeEnemies(enemyNo,quads[0].points)
-},
-function(){
-newOddPoly(300,50,0.2,20);
-enemyNo=math.floor(random(5,7))
-placeEnemies(enemyNo,quads[0].points)
-}
-]
-
-biomeLineDraw=[
-function(x1,y1,x2,y2){
-	stroke(255)
-	line(x1,y1,x2,y2)
-},
-function(x1,y1,x2,y2){
-	stroke(140, 90, 30)
-	line(x1,y1,x2,y2)
-},
-function(x1,y1,x2,y2){
-	stroke(75,0,75)
-	line(x1,y1,x2,y2)
-},
-function(x1,y1,x2,y2){
-	stroke(75,75,75)
-	line(x1,y1,x2,y2)
-},
-function(x1,y1,x2,y2){
-	stroke(102,51,0)
-	line(x1,y1,x2,y2)
-}
-]
-biomeCornerDraw=[
-function(x,y){
-	stroke(255)
-	fill(255)
-	ellipse(x,y,cornerRad,cornerRad)
-},
-function(x,y){
-	stroke(140, 90, 30)
-	fill(95,60,20)
-	rect(x-5,y-5,10,10)
-},
-function(x,y){
-	stroke(150,0,150)
-
-	fill(50,0,50)
-	ellipse(x,y,cornerRad,cornerRad)
-},
-function(x,y){
-	stroke(150,150,150)
-
-	fill(50,50,50)
-	rect(x-10,y-10,20,20)
-},
-function(x,y){
-	stroke(102,51,0)
-	fill(153,77,0)
-	ellipse(x,y,cornerRad,cornerRad)
-}
-]
-
-biomePolyDraw=[
-function(polyAr){
-
-},
-function(polyAr){
-
-},
-function(polyAr){
-
-},
-function(polyAr){
-
-},
-function(polyAr){
-
-}
-]
-
-biomePolyBG=[
-[20,20,20],
-[145,74,50],
-[200,0,0],
-[70,210,70],
-[20,240,60]
-]
-
-biomeBackgroundDraw=[
-function(){
-	background(0,0,0)
-},
-function(){
-	background(70,120,80)
-},
-function(){
-	background(170,0,0)
-},
-function(){
-	background(40,180,40)
-},
-function(){
-	background(0,220,40)
-}
-]
-
 //newOddPoly(rad,radGive,giveRatio,steps)
 
 function showLevel(biome,seedParam){
@@ -443,7 +317,8 @@ function showLevel(biome,seedParam){
     x:0,
     y:0,
     r:70,
-    active:false
+    active:false,
+    timer:0
   }
   touching=false;
   seed=seedParam
@@ -455,7 +330,7 @@ function showLevel(biome,seedParam){
 
 
 
-  biomes[biome]();
+  biomes[biome].start();
 
 
 }
@@ -464,6 +339,8 @@ function winCurrentRun(){
 	runs.push(currentRun)
 	//alert("ya win!")
 	hogToUnlock=getHogToUnlock()
+  totalScore=0;
+  currentRun.forEach(level => totalScore+=level.score);
 	if(hogToUnlock>-1){
 		unlockedHogs.push(hogToUnlock)
 		popUp.text="You unlocked "+hogs[hogToUnlock].name+"!"
@@ -472,9 +349,14 @@ function winCurrentRun(){
 		paused=true
 	//alert("You unlocked "+hogs[hogToUnlock].name+"!")
 	}else{
-		alert("You've unlocked all hogs already!")
-		gamestate="menu"
+		//alert("You've unlocked all hogs already!")
+		//gamestate="menu"
+		popUp.text="You've unlocked all the hogs!"
+		popUp.img=hogs[0].img
+		popUp.show=true
+		paused=true
 	}
+  popUp.text+="\n\nScore: "+currentRun.map(lvl=>lvl.score).reduce((accumulator,a)=>accumulator+a,0).toFixed(2);
 }
 
 function nextLevel(){
@@ -494,7 +376,7 @@ showLevel(biome,seed)
 
 function newLevel(){
 	biomeTemp=math.floor(random(biomes.length))
-  //biomeTemp=0
+  //biomeTemp=biomes.length-1
   seedTemp=math.random(10000)
 
 
@@ -507,17 +389,21 @@ function newLevel(){
 }
 function newRun(){
 	  run=[]
-	  while(run.length<10){
+	  while(run.length<9){
 	  run.push(newLevel())
 	  }
 	  //alert(run)
 	  return run
 }
 
-
+let font;
+function preload(){
+	font=loadFont("img/FFFFORWA.ttf");
+}
 
 function setup() {
-  gamestate="menu"
+	textFont(font);
+  changeGamestate("menu")
   touching=false
   ratio = window.devicePixelRatio || 1;
   w = screen.width * ratio;
@@ -569,7 +455,7 @@ function setup() {
 
 
   //if no save
-  unlockedHogs=[0,1,2]
+  unlockedHogs=[0]
   runs=[]
 
 
@@ -585,15 +471,73 @@ function setup() {
   	  paused=false
   		goToMenu=true
   	},
+    width:250,
+    height:350,
   	draw:function(){
-  		fill(150,150,150)
-    	rect(10,10,width-20,height-20)
+      push()
+      noStroke()
+      rectMode(CENTER)
+  		fill(150,150,150,150)
+    	rect(width/2,height/2,this.width,this.height)
   		fill(255,255,255)
-  		text(popUp.text,10,10)
-  		image(popUp.img,width/2,height/2,width/3,width/3)
+  		text(popUp.text,width/2-this.width/2+30,height/2-this.height/2+30)
+  		image(popUp.img,width/2-this.width/2+15,height/2-this.height/2+70,this.height*0.6,this.height*0.6)
+      pop()
   	}
   }
+  pauseButtonSize=width*0.1
+  pauseBtn={
+    x:10,
+    y:height-10-pauseButtonSize,
+    w:pauseButtonSize,
+    h:pauseButtonSize,
+    clickable:true,
+    draw:function(){
+      push()
+      noStroke()
+      if(paused){
+        text(">",pauseBtn.x-5+pauseBtn.w/2,pauseBtn.y+10+pauseBtn.h/2)
+        fill(100,0,0,150)
+      }else{
+        text("| |",pauseBtn.x-10+pauseBtn.w/2,pauseBtn.y+15+pauseBtn.h/2)
+        fill(100,100,100,150)
+      }
+      rect(pauseBtn.x,pauseBtn.y,pauseBtn.w,pauseBtn.h)
+      pop()
 
+    },
+    click:function(x,y){
+      if(inBox(x,y,pauseBtn.x,pauseBtn.y,pauseBtn.x+pauseBtn.w,pauseBtn.y+pauseBtn.h)){
+        if(pauseBtn.clickable){
+          paused=!paused;
+          pauseBtn.clickable=false;
+          return true;
+        }
+      }
+      return false;
+    },
+    testClickable:function(x,y){
+      if(inBox(x,y,pauseBtn.x,pauseBtn.y,pauseBtn.x+pauseBtn.w,pauseBtn.y+pauseBtn.h)){
+        if(!touching){
+          pauseBtn.clickable=true;
+        }
+      }else{
+        pauseBtn.clickable=true;
+      }
+    }
+  }
+  frameRate(30)
+
+}
+
+function changeGamestate(newGamestate){
+  switch(newGamestate){
+    case "menu":
+      menuSetup()
+    case "game":
+      gameSetup()
+  }
+  gamestate=newGamestate
 }
 
 
@@ -621,8 +565,6 @@ function fingerDown(x,y){
   touching=true;
   if(gamestate=="game"){
     timeMult=0.1;
-  }else{
-    //alert(touchStartX+","+touchStartY)
   }
 }
 
@@ -633,8 +575,9 @@ function fingerUp(x,y){
     if(popUp.show){
       popUp.show=false
       popUp.onClick()
-    }
-    else{
+    }else if(pauseBtn.click(touchStartX,touchStartY)){
+      console.log("pause")
+    }else{
       touchNo++;
       timeMult=1;
       touchXLen=x-touchStartX;
