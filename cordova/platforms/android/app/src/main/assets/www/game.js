@@ -143,6 +143,8 @@ function gameDraw(){
         nearEnemy=true;
         if(enemy.isHit){enemy.isHit=false}
 
+      }else{
+        if(enemy.isHit){enemy.isHit=false}
       }
 
 

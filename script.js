@@ -488,11 +488,11 @@ function setup() {
       noStroke()
       rectMode(CENTER)
   		fill(150,150,150,150)
-    	rect(width/2,height/2,this.width,this.height)
+    	rect(width/2,height/2,this.width,this.height,50)
   		fill(255,255,255)
       textSize(20)
-  		text(popUp.text,width/2-this.width/2+15,height/2-this.height/2+30)
-  		image(popUp.img,width/2-this.width/2+30,height/2-this.height/2+100,this.height*0.6,this.height*0.6)
+  		text(popUp.text,width/2-this.width/2+20,height/2-this.height/2+45)
+  		image(popUp.img,width/2-this.width/2+30,height/2-this.height/2+115,this.height*0.6,this.height*0.6)
       pop()
   	}
   }
@@ -513,7 +513,7 @@ function setup() {
         text("| |",pauseBtn.x-10+pauseBtn.w/2,pauseBtn.y+15+pauseBtn.h/2)
         fill(100,100,100,150)
       }
-      rect(pauseBtn.x,pauseBtn.y,pauseBtn.w,pauseBtn.h)
+      rect(pauseBtn.x,pauseBtn.y,pauseBtn.w,pauseBtn.h,5)
       pop()
 
     },

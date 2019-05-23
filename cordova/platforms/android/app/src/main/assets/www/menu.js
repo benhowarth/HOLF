@@ -17,14 +17,16 @@ function menuSetup(){
 
 function menuDraw(){
   background(140,70,70)
+  //background(255,195,181)
   bufferNo=unlockedHogs.length+2
   curX=width/bufferNo
   //alert(unlockedHogs)
   for(var i=0;i<unlockedHogs.length;i++){
     el=unlockedHogs[i]
     noStroke()
-    fill(110,50,50)
-    rect(curX-50,-50+height/2,100, 100)
+    //fill(110,50,50)
+    fill(255,195,181)
+    rect(curX-50,-50+height/2,100, 100,20)
     image(hogs[el].img,curX,height/2,30,30)
     if(touching && inBox(touchStartX,touchStartY,curX,height/2,curX+10,10+height/2,50)){
       currentHog=el
